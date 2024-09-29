@@ -5,14 +5,17 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.room.Room
+import com.example.dymachap9.db.AppDataBase
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var sharedPreferences: SharedPreferences
+
+    lateinit var appDb: AppDataBase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,9 @@ class MainActivity : AppCompatActivity() {
         saveUserDataInSp("Titi", "Tutu")
         Log.d("Shared preferences", sharedPreferences.all.toString())
         Toast.makeText(this, getUserName(), Toast.LENGTH_LONG).show()
+
+        createAppDb()
+        
     }
 
     private fun initSharedPreferences() {
@@ -68,4 +74,12 @@ class MainActivity : AppCompatActivity() {
             .apply()
     }
 
+
+    private fun createAppDb() {
+        appDb = Room.databaseBuilder(
+            this,
+            AppDataBase::class.java,
+            "todo-app-db"
+        ).build()
+    }
 }
