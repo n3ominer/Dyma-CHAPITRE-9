@@ -10,21 +10,29 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.room.Room
 import com.example.dymachap9.db.AppDataBase
+import com.example.dymachap9.models.TodoModel
+import com.example.dymachap9.viewmodels.TodoViewModel
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var sharedPreferences: SharedPreferences
 
-    lateinit var appDb: AppDataBase
+    lateinit var todoViewModel: TodoViewModel
+
+    private val todos: List<TodoModel> = listOf(
+        TodoModel("06/10/2024", "Faire du sport", false),
+        TodoModel("26/10/2024", "Lire un livre", true),
+        TodoModel("11/10/2024", "Sortir les poubelles", false),
+        TodoModel("31/10/2024", "Finir la formation Dyma", true),
+        TodoModel("12/10/2024", "Apprendre à coder", false),
+        TodoModel("29/10/2024", "Réparer le téléphone", true),
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        this.todoViewModel = TodoViewModel(this)
 
         initSharedPreferences()
         Toast.makeText(this, getUserName(), Toast.LENGTH_LONG).show()
@@ -35,8 +43,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("Shared preferences", sharedPreferences.all.toString())
         Toast.makeText(this, getUserName(), Toast.LENGTH_LONG).show()
 
-        createAppDb()
-        
+        this.todoViewModel.populateDataBase(todos)
     }
 
     private fun initSharedPreferences() {
@@ -50,11 +57,6 @@ class MainActivity : AppCompatActivity() {
             .apply()
     }
 
-    private fun saveDataIntoSp(data: String, dataName: String) {
-        this.sharedPreferences.edit()
-            .putString(dataName, data)
-            .apply()
-    }
 
     private fun getUserName(): String {
         return this.sharedPreferences.getString("USER_NAME", "Default")!!
@@ -72,14 +74,5 @@ class MainActivity : AppCompatActivity() {
             .edit()
             .clear()
             .apply()
-    }
-
-
-    private fun createAppDb() {
-        appDb = Room.databaseBuilder(
-            this,
-            AppDataBase::class.java,
-            "todo-app-db"
-        ).build()
     }
 }

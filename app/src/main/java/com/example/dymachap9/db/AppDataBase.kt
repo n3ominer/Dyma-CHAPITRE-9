@@ -12,4 +12,5 @@ import com.example.dymachap9.db.entities.TodoEntity
 abstract class AppDataBase: RoomDatabase() {
 
     abstract fun todoDao(): TodoDao
+
 }
