@@ -1,15 +1,15 @@
 package com.example.dymachap9
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.room.Room
-import com.example.dymachap9.db.AppDataBase
 import com.example.dymachap9.models.TodoModel
 import com.example.dymachap9.viewmodels.TodoViewModel
 
@@ -43,7 +43,8 @@ class MainActivity : AppCompatActivity() {
         Log.d("Shared preferences", sharedPreferences.all.toString())
         Toast.makeText(this, getUserName(), Toast.LENGTH_LONG).show()
 
-        this.todoViewModel.populateDataBase(todos)
+
+        writeInLocalFIle()
     }
 
     private fun initSharedPreferences() {
@@ -55,6 +56,26 @@ class MainActivity : AppCompatActivity() {
             .putString("USER_NAME", name)
             .putString("USER_LAST_NAME", lastname)
             .apply()
+    }
+
+    fun writeInLocalFIle() {
+        val fileContent = todos.map {
+            "${it.data} || ${it.description} || La tâche est terminée: ${if(it.isFinished) "Vrai" else "False"}\n"
+        }.toString()
+
+        val contentMetaData = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "local_text_todo_file")
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS)
+        }
+
+        val uri = contentResolver.insert(MediaStore.Files.getContentUri("external"), contentMetaData)
+        uri?.let {
+            contentResolver.openOutputStream(it).use { outputStream ->
+                outputStream?.write(fileContent.toByteArray())
+            }
+        }
+
     }
 
 
